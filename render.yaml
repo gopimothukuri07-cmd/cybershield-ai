@@ -4,8 +4,9 @@ services:
     runtime: docker
     region: oregon
     plan: free
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /health
     envVars:
       - key: SECRET_KEY
