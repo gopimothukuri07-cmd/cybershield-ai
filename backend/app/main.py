@@ -2,6 +2,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 import json
+import os
 import random
 from typing import List
 from datetime import datetime
@@ -21,7 +22,7 @@ app.add_middleware(
 )
 
 # In-memory store for stats (no DB required for standalone run)
-threat_store = []
+threat_store: list = []
 
 class ConnectionManager:
     def __init__(self):
@@ -47,6 +48,10 @@ manager = ConnectionManager()
 @app.get("/")
 def read_root():
     return {"status": "ok", "message": "CyberShield AI is Live"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
 
 @app.get("/api/analytics/statistics")
 def get_statistics():
@@ -108,4 +113,6 @@ async def traffic_simulator():
 
 @app.on_event("startup")
 async def startup_event():
+    port = os.getenv("PORT", "10000")
+    print(f"CyberShield AI starting on port {port}")
     asyncio.create_task(traffic_simulator())

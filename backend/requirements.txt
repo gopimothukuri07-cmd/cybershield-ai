@@ -2,12 +2,4 @@ fastapi
 uvicorn[standard]
 websockets
 pydantic
-sqlalchemy
-asyncpg
-psycopg2-binary
-redis
-celery
 python-dotenv
-passlib[bcrypt]
-python-jose[cryptography]
-pyjwt
