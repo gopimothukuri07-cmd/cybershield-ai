@@ -6,7 +6,7 @@ interface GlobeMapProps {
   events: ThreatEvent[];
 }
 
-// A simple map of country to lat/lng for demo purposes
+// Map of all countries in simulator to lat/lng coordinates
 const COUNTRY_COORDS: Record<string, { lat: number, lng: number }> = {
   "US": { lat: 37.0902, lng: -95.7129 },
   "CN": { lat: 35.8617, lng: 104.1954 },
@@ -18,6 +18,11 @@ const COUNTRY_COORDS: Record<string, { lat: number, lng: number }> = {
   "GB": { lat: 55.3781, lng: -3.4360 },
   "CA": { lat: 56.1304, lng: -106.3468 },
   "AU": { lat: -25.2744, lng: 133.7751 },
+  "JP": { lat: 36.2048, lng: 138.2529 },
+  "KR": { lat: 35.9078, lng: 127.7669 },
+  "UA": { lat: 48.3794, lng: 31.1656 },
+  "IR": { lat: 32.4279, lng: 53.6880 },
+  "NG": { lat: 9.0820, lng: 8.6753 }
 };
 
 const GlobeMap: React.FC<GlobeMapProps> = ({ events }) => {
@@ -26,20 +31,34 @@ const GlobeMap: React.FC<GlobeMapProps> = ({ events }) => {
 
   useEffect(() => {
     if (globeEl.current && !globeInstance.current) {
+      // Create globe instance with rich visual style matching live cyber threat maps
       globeInstance.current = new Globe(globeEl.current)
-        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
         .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
         .backgroundColor('rgba(0,0,0,0)')
-        .arcColor(() => '#ff003c')
-        .arcDashLength(0.4)
+        
+        // Neon atmosphere glow (Kaspersky style)
+        .showAtmosphere(true)
+        .atmosphereColor('#00f0ff')
+        .atmosphereAltitude(0.18)
+        
+        // Arc configuration (attack vectors)
+        .arcColor('color')
+        .arcDashLength(0.5)
         .arcDashGap(0.2)
         .arcDashInitialGap(() => Math.random())
-        .arcDashAnimateTime(1500)
-        .arcStroke(0.5);
+        .arcDashAnimateTime(1200)
+        .arcStroke(0.6)
+        
+        // Ring configuration (target blasts)
+        .ringColor(() => '#ff003c')
+        .ringMaxRadius('maxR')
+        .ringPropagationSpeed('propagationSpeed')
+        .ringRepeatPeriod('repeatPeriod');
 
-      // Auto-rotate
+      // Super smooth auto-rotate
       globeInstance.current.controls().autoRotate = true;
-      globeInstance.current.controls().autoRotateSpeed = 1.0;
+      globeInstance.current.controls().autoRotateSpeed = 0.6;
     }
 
     const handleResize = () => {
@@ -55,23 +74,48 @@ const GlobeMap: React.FC<GlobeMapProps> = ({ events }) => {
 
   useEffect(() => {
     if (globeInstance.current) {
-      // Map events to arcs
+      // Map events to attack arcs
       const arcsData = events.map(event => {
         const source = COUNTRY_COORDS[event.source_country];
         const target = COUNTRY_COORDS[event.target_country];
         
         if (!source || !target) return null;
         
+        // High severity attacks use neon red, others use neon purple
+        const arcColor = event.severity === 'Critical' || event.severity === 'High' 
+          ? '#ff003c' 
+          : '#b026ff';
+        
         return {
           startLat: source.lat,
           startLng: source.lng,
           endLat: target.lat,
           endLng: target.lng,
-          color: event.severity === 'Critical' ? '#ff003c' : '#b026ff'
+          color: arcColor
+        };
+      }).filter(Boolean);
+
+      // Map events to target ripple rings
+      const ringsData = events.map(event => {
+        const target = COUNTRY_COORDS[event.target_country];
+        if (!target) return null;
+        
+        // Ripple size matches attack severity
+        const maxR = event.severity === 'Critical' ? 6 
+                   : event.severity === 'High' ? 4 
+                   : 2;
+                   
+        return {
+          lat: target.lat,
+          lng: target.lng,
+          maxR: maxR,
+          propagationSpeed: 1.5,
+          repeatPeriod: 1000
         };
       }).filter(Boolean);
 
       globeInstance.current.arcsData(arcsData);
+      globeInstance.current.ringsData(ringsData);
     }
   }, [events]);
 
