@@ -1,8 +1,13 @@
+import { WS_URL } from '../config';
+
 export class WebSocketService {
   private socket: WebSocket | null = null;
   private listeners: ((data: any) => void)[] = [];
+  private url: string;
 
-  constructor(private url: string) {}
+  constructor(url: string) {
+    this.url = url;
+  }
 
   connect() {
     this.socket = new WebSocket(this.url);
@@ -34,5 +39,4 @@ export class WebSocketService {
   }
 }
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws/live';
 export const wsService = new WebSocketService(WS_URL);

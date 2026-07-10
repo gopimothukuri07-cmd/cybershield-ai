@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Globe from 'globe.gl';
-import { ThreatEvent } from './Dashboard';
+import type { ThreatEvent } from './Dashboard';
 
 interface GlobeMapProps {
   events: ThreatEvent[];
@@ -26,7 +26,7 @@ const GlobeMap: React.FC<GlobeMapProps> = ({ events }) => {
 
   useEffect(() => {
     if (globeEl.current && !globeInstance.current) {
-      globeInstance.current = Globe()(globeEl.current)
+      globeInstance.current = new Globe(globeEl.current)
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
         .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
         .backgroundColor('rgba(0,0,0,0)')

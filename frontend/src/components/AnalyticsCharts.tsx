@@ -3,7 +3,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
-import { ThreatEvent } from './Dashboard';
+import type { ThreatEvent } from './Dashboard';
 
 interface AnalyticsChartsProps {
   events: ThreatEvent[];
@@ -44,7 +44,7 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ events }) => {
               paddingAngle={5}
               dataKey="value"
             >
-              {pieData.map((entry, index) => (
+              {pieData.map((_entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>

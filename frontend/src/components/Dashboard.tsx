@@ -4,6 +4,7 @@ import LiveFeed from './LiveFeed';
 import AnalyticsCharts from './AnalyticsCharts';
 import { wsService } from '../services/socket';
 import { authService } from '../services/auth';
+import { API_URL } from '../config';
 
 export interface ThreatEvent {
   source_country: string;
@@ -16,8 +17,6 @@ export interface ThreatEvent {
   confidence: number;
   packet_rate: number;
 }
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const Dashboard: React.FC = () => {
   const [events, setEvents] = useState<ThreatEvent[]>([]);

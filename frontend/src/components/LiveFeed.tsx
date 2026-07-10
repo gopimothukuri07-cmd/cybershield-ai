@@ -1,6 +1,6 @@
 import React from 'react';
-import { ThreatEvent } from './Dashboard';
-import { ShieldExclamationIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
+import type { ThreatEvent } from './Dashboard';
+import { ShieldCheckIcon } from '@heroicons/react/24/solid';
 
 interface LiveFeedProps {
   events: ThreatEvent[];
