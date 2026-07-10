@@ -21,8 +21,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# In-memory store for stats (no DB required for standalone run)
+from pydantic import BaseModel
+from fastapi import Form, HTTPException
+
+# In-memory store for stats & users (no DB required for standalone run)
 threat_store: list = []
+user_store: dict = {}
+
+class UserCreate(BaseModel):
+    username: str
+    email: str
+    password: str
 
 class ConnectionManager:
     def __init__(self):
@@ -52,6 +61,24 @@ def read_root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
+
+@app.post("/api/auth/signup")
+def signup(user_in: UserCreate):
+    if user_in.username in user_store:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    user_store[user_in.username] = {
+        "username": user_in.username,
+        "email": user_in.email,
+        "password": user_in.password
+    }
+    return {"access_token": f"mock-token-{user_in.username}", "token_type": "bearer"}
+
+@app.post("/api/auth/login")
+def login(username: str = Form(...), password: str = Form(...)):
+    user = user_store.get(username)
+    if not user or user["password"] != password:
+        raise HTTPException(status_code=401, detail="Incorrect username or password")
+    return {"access_token": f"mock-token-{username}", "token_type": "bearer"}
 
 @app.get("/api/analytics/statistics")
 def get_statistics():
