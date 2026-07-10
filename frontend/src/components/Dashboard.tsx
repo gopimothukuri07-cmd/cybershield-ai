@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import GlobeMap from './GlobeMap';
-import LiveFeed from './LiveFeed';
-import AnalyticsCharts from './AnalyticsCharts';
 import { wsService } from '../services/socket';
 import { authService } from '../services/auth';
 import { API_URL } from '../config';
@@ -16,7 +14,15 @@ export interface ThreatEvent {
   severity: string;
   confidence: number;
   packet_rate: number;
+  timestamp?: string;
 }
+
+const SEVERITY_COLOR: Record<string, string> = {
+  Critical: 'text-red-400 border-red-500/40 bg-red-500/10',
+  High: 'text-orange-400 border-orange-500/40 bg-orange-500/10',
+  Medium: 'text-yellow-400 border-yellow-500/40 bg-yellow-500/10',
+  Low: 'text-cyber-blue border-cyber-blue/40 bg-cyber-blue/10',
+};
 
 const Dashboard: React.FC = () => {
   const [events, setEvents] = useState<ThreatEvent[]>([]);
@@ -25,114 +31,165 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     wsService.connect();
     const unsubscribe = wsService.subscribe((data: ThreatEvent) => {
-      setEvents(prev => [data, ...prev].slice(0, 50));
+      setEvents((prev) => [data, ...prev].slice(0, 100));
     });
 
-    // Fetch initial stats
     const fetchStats = async () => {
       try {
         const token = authService.getToken();
-        const response = await fetch(`${API_URL}/api/analytics/statistics`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+        const res = await fetch(`${API_URL}/api/analytics/statistics`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        if (response.ok) {
-          const data = await response.json();
-          setStats(data);
-        }
+        if (res.ok) setStats(await res.json());
       } catch (e) {
-        console.error("Error fetching stats", e);
+        console.error('Stats fetch error', e);
       }
     };
-    
-    fetchStats();
-    const interval = setInterval(fetchStats, 5000); // Poll every 5s
 
+    fetchStats();
+    const interval = setInterval(fetchStats, 5000);
     return () => {
       unsubscribe();
       clearInterval(interval);
     };
   }, []);
 
+  const recentEvents = events.slice(0, 6);
+
   return (
-    <div className="relative w-full h-full overflow-hidden bg-[#020204]">
-      {/* Immersive Full Screen 3D Globe - Serves as the Background canvas */}
+    <div className="relative w-full h-full bg-[#020408] overflow-hidden">
+      {/* === Full-screen 3D Earth Globe === */}
       <div className="absolute inset-0 w-full h-full z-0">
         <GlobeMap events={events} />
       </div>
 
-      {/* FLOAT PANELS - Glassmorphism command center overlays */}
-      <div className="absolute inset-0 z-10 pointer-events-none flex justify-between p-6 h-full select-none">
-        
-        {/* LEFT OVERLAY: System Metrics & Attack Analytics */}
-        <div className="w-80 pointer-events-auto flex flex-col gap-4 h-full overflow-y-auto pr-1">
-          {/* Main Title Banner */}
-          <div className="backdrop-blur-xl bg-black/60 border border-white/10 rounded-xl p-4 shadow-2xl shadow-black/80">
-            <h2 className="text-sm font-mono tracking-widest text-cyber-blue font-bold">SYSTEM INTEGRITY STATUS</h2>
-            <div className="mt-2 flex items-center justify-between">
-              <span className="text-xs text-gray-400">Threat Mitigation Engine</span>
-              <span className="text-xs text-cyber-green font-mono flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-cyber-green animate-pulse"></span> ACTIVE
-              </span>
-            </div>
-          </div>
-
-          {/* Quick Metrics Grid */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="backdrop-blur-xl bg-black/60 border border-white/10 rounded-xl p-3 shadow-2xl shadow-black/80">
-              <div className="text-[10px] font-mono text-gray-400 uppercase">Total Logged</div>
-              <div className="text-xl font-bold font-mono text-cyber-blue mt-1">
-                {stats?.total_threats || 0}
+      {/* === LEFT FLOATING PANEL: System Status === */}
+      <div className="absolute left-4 top-16 bottom-4 z-10 w-64 flex flex-col gap-3 pointer-events-none">
+        {/* Stats */}
+        <div className="pointer-events-auto backdrop-blur-xl bg-black/70 border border-white/10 rounded-xl p-4 shadow-2xl">
+          <p className="text-[10px] font-mono text-cyber-blue tracking-widest mb-3 border-b border-white/10 pb-2">
+            SYSTEM STATUS
+          </p>
+          <div className="space-y-3">
+            {[
+              {
+                label: 'Total Threats',
+                value: stats?.total_threats ?? 0,
+                color: 'text-cyber-blue',
+              },
+              {
+                label: 'Critical',
+                value: stats?.critical_threats ?? 0,
+                color: 'text-red-400',
+              },
+              {
+                label: 'Mitigation',
+                value: `${stats?.system_health ?? 100}%`,
+                color:
+                  (stats?.system_health ?? 100) > 90
+                    ? 'text-cyber-green'
+                    : 'text-orange-400',
+              },
+              {
+                label: 'Threat Level',
+                value: stats?.threat_level ?? 'Low',
+                color:
+                  stats?.threat_level === 'Critical'
+                    ? 'text-red-400 animate-pulse'
+                    : 'text-cyber-blue',
+              },
+            ].map((item) => (
+              <div key={item.label} className="flex justify-between items-center">
+                <span className="text-[11px] text-gray-400 font-mono">{item.label}</span>
+                <span className={`text-sm font-bold font-mono ${item.color}`}>
+                  {item.value}
+                </span>
               </div>
-            </div>
-            <div className="backdrop-blur-xl bg-black/60 border border-white/10 rounded-xl p-3 shadow-2xl shadow-black/80 border-red-500/20">
-              <div className="text-[10px] font-mono text-gray-400 uppercase">Critical Attacks</div>
-              <div className="text-xl font-bold font-mono text-cyber-red mt-1">
-                {stats?.critical_threats || 0}
-              </div>
-            </div>
-            <div className="backdrop-blur-xl bg-black/60 border border-white/10 rounded-xl p-3 shadow-2xl shadow-black/80">
-              <div className="text-[10px] font-mono text-gray-400 uppercase">Mitigation Rate</div>
-              <div className={`text-xl font-bold font-mono mt-1 ${stats?.system_health > 90 ? 'text-cyber-green' : 'text-orange-500'}`}>
-                {stats?.system_health || 100}%
-              </div>
-            </div>
-            <div className="backdrop-blur-xl bg-black/60 border border-white/10 rounded-xl p-3 shadow-2xl shadow-black/80">
-              <div className="text-[10px] font-mono text-gray-400 uppercase">Threat Index</div>
-              <div className={`text-xl font-bold font-mono mt-1 ${stats?.threat_level === 'Critical' ? 'text-cyber-red animate-pulse' : 'text-cyber-blue'}`}>
-                {stats?.threat_level || 'Low'}
-              </div>
-            </div>
-          </div>
-
-          {/* Charts Overlay */}
-          <div className="backdrop-blur-xl bg-black/60 border border-white/10 rounded-xl p-4 shadow-2xl shadow-black/80 flex-grow max-h-[460px]">
-            <h3 className="text-xs font-mono tracking-wider text-gray-300 font-bold border-b border-white/5 pb-2">THREAT ANALYTICS</h3>
-            <div className="h-full overflow-y-auto pb-6">
-              <AnalyticsCharts events={events} />
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* RIGHT OVERLAY: Real-Time Incident Stream */}
-        <div className="w-[420px] pointer-events-auto flex flex-col gap-4 h-full">
-          <div className="backdrop-blur-xl bg-black/60 border border-white/10 rounded-xl shadow-2xl shadow-black/80 flex flex-col h-full overflow-hidden">
-            <div className="p-4 border-b border-white/10 flex justify-between items-center bg-black/30">
-              <div className="flex flex-col">
-                <h2 className="text-sm font-mono tracking-widest text-cyber-blue font-bold">INCIDENT FEED</h2>
-                <span className="text-[10px] text-gray-500 font-mono">MITIGATING REAL-TIME THREAT VECTORS</span>
-              </div>
-              <span className="text-xs bg-cyber-blue/15 text-cyber-blue border border-cyber-blue/20 px-2 py-0.5 rounded font-mono">
-                {events.length} LOGS
-              </span>
+        {/* Attack Types Legend */}
+        <div className="pointer-events-auto backdrop-blur-xl bg-black/70 border border-white/10 rounded-xl p-4 shadow-2xl">
+          <p className="text-[10px] font-mono text-cyber-blue tracking-widest mb-3 border-b border-white/10 pb-2">
+            ATTACK TYPES
+          </p>
+          {[
+            { label: 'Critical / High', color: '#ff003c' },
+            { label: 'Medium', color: '#b026ff' },
+            { label: 'Target Rings', color: '#ff003c', ring: true },
+          ].map((item) => (
+            <div key={item.label} className="flex items-center gap-2 mb-2">
+              <div
+                className={`w-8 h-0.5 ${item.ring ? 'rounded-full border border-dashed' : ''}`}
+                style={{
+                  backgroundColor: item.ring ? 'transparent' : item.color,
+                  borderColor: item.ring ? item.color : undefined,
+                }}
+              />
+              <span className="text-[11px] text-gray-400 font-mono">{item.label}</span>
             </div>
-            
-            {/* Scrollable incidents feed */}
-            <div className="flex-grow overflow-y-auto p-4 flex flex-col gap-3">
-              <LiveFeed events={events} />
+          ))}
+        </div>
+      </div>
+
+      {/* === RIGHT FLOATING PANEL: Live Incident Feed === */}
+      <div className="absolute right-4 top-16 bottom-4 z-10 w-80 flex flex-col gap-3 pointer-events-none">
+        <div className="pointer-events-auto backdrop-blur-xl bg-black/70 border border-white/10 rounded-xl shadow-2xl flex flex-col h-full overflow-hidden">
+          {/* Header */}
+          <div className="p-4 border-b border-white/10 flex justify-between items-center bg-black/40">
+            <div>
+              <p className="text-[10px] font-mono text-cyber-blue tracking-widest">
+                LIVE INCIDENT FEED
+              </p>
+              <p className="text-[9px] text-gray-500 font-mono mt-0.5">
+                REAL-TIME THREAT VECTORS
+              </p>
             </div>
+            <span className="text-[10px] font-mono bg-cyber-blue/15 text-cyber-blue border border-cyber-blue/20 px-2 py-0.5 rounded">
+              {events.length} LOGS
+            </span>
+          </div>
+
+          {/* Scrollable events */}
+          <div className="flex-grow overflow-y-auto p-3 space-y-2">
+            {recentEvents.length === 0 ? (
+              <p className="text-gray-600 text-xs font-mono text-center mt-8">
+                Awaiting threat data...
+              </p>
+            ) : (
+              events.slice(0, 30).map((evt, i) => (
+                <div
+                  key={i}
+                  className={`rounded-lg border p-3 text-xs font-mono ${
+                    SEVERITY_COLOR[evt.severity] || SEVERITY_COLOR.Low
+                  }`}
+                >
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-bold">{evt.attack_type}</span>
+                    <span className="text-[9px] text-gray-500">
+                      {new Date().toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <div className="text-gray-400 space-y-0.5">
+                    <p>
+                      <span className="text-gray-500">SRC</span>{' '}
+                      {evt.source_country} ({evt.source_ip})
+                    </p>
+                    <p>
+                      <span className="text-gray-500">DST</span>{' '}
+                      {evt.target_country} ({evt.destination_ip})
+                    </p>
+                    <p>
+                      <span className="text-gray-500">Protocol:</span>{' '}
+                      {evt.protocol} | {(evt.packet_rate / 1000).toFixed(0)}k pps
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
-
       </div>
     </div>
   );

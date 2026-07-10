@@ -1,9 +1,12 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Landing from './pages/Landing';
+import Statistics from './pages/Statistics';
+import Threats from './pages/Threats';
 import { authService } from './services/auth';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -13,45 +16,55 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Layout that adds the Navbar above the page content
+const ProtectedLayout = ({ children }: { children: React.ReactNode }) => (
+  <ProtectedRoute>
+    <div className="flex flex-col h-screen w-full bg-[#020408] overflow-hidden">
+      <Navbar />
+      <div className="flex-1 pt-12 min-h-0 overflow-hidden">
+        {children}
+      </div>
+    </div>
+  </ProtectedRoute>
+);
+
 function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
+        {/* Public routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route 
-          path="/dashboard" 
+
+        {/* Protected routes - each page gets full height with Navbar */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedLayout>
+              <Dashboard />
+            </ProtectedLayout>
+          }
+        />
+        <Route
+          path="/statistics"
           element={
             <ProtectedRoute>
-              <div className="min-h-screen bg-cyber-darker text-white overflow-hidden">
-                <header className="absolute top-0 w-full z-10 glass-panel border-b border-white/10 p-4">
-                  <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold tracking-widest text-cyber-blue drop-shadow-[0_0_10px_rgba(0,240,255,0.8)]">
-                      CYBERSHIELD AI
-                    </h1>
-                    <div className="flex space-x-4 text-sm font-mono text-gray-400 items-center">
-                      <span>SOC DASHBOARD</span>
-                      <span className="text-cyber-green animate-pulse">● LIVE</span>
-                      <button 
-                        onClick={() => {
-                          authService.removeToken();
-                          window.location.href = import.meta.env.BASE_URL + 'login';
-                        }}
-                        className="ml-4 text-xs bg-red-500/20 text-red-500 border border-red-500 rounded px-2 py-1 hover:bg-red-500/40"
-                      >
-                        LOGOUT
-                      </button>
-                    </div>
-                  </div>
-                </header>
-                <main className="pt-20 h-screen w-full">
-                  <Dashboard />
-                </main>
-              </div>
+              <Statistics />
             </ProtectedRoute>
-          } 
+          }
         />
+        <Route
+          path="/threats"
+          element={
+            <ProtectedRoute>
+              <Threats />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Catch-all fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
