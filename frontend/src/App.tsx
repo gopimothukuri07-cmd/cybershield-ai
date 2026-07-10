@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
@@ -36,7 +36,7 @@ function App() {
                       <button 
                         onClick={() => {
                           authService.removeToken();
-                          window.location.href = '/login';
+                          window.location.href = import.meta.env.BASE_URL + 'login';
                         }}
                         className="ml-4 text-xs bg-red-500/20 text-red-500 border border-red-500 rounded px-2 py-1 hover:bg-red-500/40"
                       >
