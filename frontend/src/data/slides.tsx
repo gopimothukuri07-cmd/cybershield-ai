@@ -13,7 +13,7 @@ export const slides: SlideContent[] = [
     id: 1,
     title: "CyberShield AI",
     subtitle: "Real-Time DDoS Threat Intelligence & Monitoring Platform",
-    speakerNotes: "Good morning/afternoon respected faculty and reviewers. My name is M. Gopi Chandu, and today I will be presenting my project, CyberShield AI, which is a Real-Time DDoS Threat Intelligence and Monitoring Platform.",
+    speakerNotes: "Good morning/afternoon respected faculty and reviewers. My name is M. Gopi, and today I will be presenting my project, CyberShield AI, which is a Real-Time DDoS Threat Intelligence and Monitoring Platform.",
     content: (
       <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
         <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyber-blue to-cyber-green drop-shadow-[0_0_15px_rgba(0,240,255,0.6)]">
@@ -24,7 +24,7 @@ export const slides: SlideContent[] = [
         </h2>
         <div className="mt-12 p-6 glass-panel border border-cyber-blue/30 rounded-xl">
           <p className="text-cyber-blue font-bold tracking-widest">Presented by</p>
-          <p className="text-white text-2xl font-black mt-2">M. GOPI CHANDU</p>
+          <p className="text-white text-2xl font-black mt-2">M. GOPI</p>
           <p className="text-gray-400 mt-1">Sri Mittapalli College of Engineering (SMCE), Guntur</p>
           <p className="text-gray-500 text-sm mt-1">Year: 2026</p>
         </div>
@@ -370,14 +370,19 @@ export const slides: SlideContent[] = [
               gopimothukuri07@gmail.com
             </a>
             
-            <span className="text-gray-400 font-mono text-right mt-4 pt-4 border-t border-white/10">Live App:</span>
+            <span className="text-gray-400 font-mono text-right mt-4 pt-4 border-t border-white/10">Deployed Link:</span>
             <a href="https://gopimothukuri07-cmd.github.io/cybershield-ai/" target="_blank" rel="noreferrer" className="text-cyber-blue hover:underline truncate mt-4 pt-4 border-t border-white/10">
-              https://gopimothukuri07-cmd.github.io/cybershield-ai/
+              cybershield-ai/
             </a>
             
-            <span className="text-gray-400 font-mono text-right">GitHub:</span>
+            <span className="text-gray-400 font-mono text-right">Presentation:</span>
+            <a href="https://gopimothukuri07-cmd.github.io/cybershield-ai/presentation/" target="_blank" rel="noreferrer" className="text-cyber-blue hover:underline truncate">
+              cybershield-ai/presentation/
+            </a>
+            
+            <span className="text-gray-400 font-mono text-right">GitHub Repo:</span>
             <a href="https://github.com/gopimothukuri07-cmd/cybershield-ai" target="_blank" rel="noreferrer" className="text-cyber-blue hover:underline truncate">
-              https://github.com/gopimothukuri07-cmd/cybershield-ai
+              cybershield-ai/ (GitHub)
             </a>
           </div>
         </div>

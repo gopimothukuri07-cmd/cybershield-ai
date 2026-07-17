@@ -37,7 +37,7 @@ def add_content_slide(title_text, content_text):
 add_title_slide(
     "CyberShield AI",
     "Real-Time DDoS Threat Intelligence & Monitoring Platform",
-    "Presented by: M. Gopi Chandu\nCourse / Department Name\nCollege Name\nYear: 2026"
+    "Presented by: M. Gopi\nCourse / Department Name\nCollege Name\nYear: 2026"
 )
 
 # Slide 2: Problem Statement
