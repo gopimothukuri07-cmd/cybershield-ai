@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
 import Login from './pages/Login';
@@ -7,7 +7,6 @@ import Signup from './pages/Signup';
 import Landing from './pages/Landing';
 import Statistics from './pages/Statistics';
 import Threats from './pages/Threats';
-import Presentation from './pages/Presentation';
 import { authService } from './services/auth';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -31,7 +30,7 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => (
 
 function App() {
   return (
-    <HashRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Landing />} />
@@ -63,12 +62,11 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/presentation" element={<Presentation />} />
 
         {/* Catch-all fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </HashRouter>
+    </BrowserRouter>
   );
 }
 
