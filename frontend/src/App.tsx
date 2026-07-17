@@ -7,6 +7,7 @@ import Signup from './pages/Signup';
 import Landing from './pages/Landing';
 import Statistics from './pages/Statistics';
 import Threats from './pages/Threats';
+import Presentation from './pages/Presentation';
 import { authService } from './services/auth';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -62,6 +63,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/presentation" element={<Presentation />} />
 
         {/* Catch-all fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -41,9 +41,9 @@ const Landing: React.FC = () => {
             <Link to="/signup" className="px-8 py-4 bg-cyber-blue text-black font-bold rounded shadow-[0_0_20px_rgba(0,240,255,0.4)] hover:shadow-[0_0_30px_rgba(0,240,255,0.6)] transition-all">
               Initialize Clearance
             </Link>
-            <a href="#features" className="px-8 py-4 border border-white/20 rounded hover:bg-white/5 transition-all">
-              System Capabilities
-            </a>
+            <Link to="/presentation" className="px-8 py-4 border border-cyber-purple text-cyber-purple rounded hover:bg-cyber-purple hover:text-white transition-all">
+              View Project Presentation
+            </Link>
           </div>
         </motion.div>
 
