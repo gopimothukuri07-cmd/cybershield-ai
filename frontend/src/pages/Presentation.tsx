@@ -50,13 +50,7 @@ const Presentation: React.FC = () => {
     <div className="fixed inset-0 bg-[#020408] text-white overflow-hidden flex flex-col z-[100] font-sans">
       
       {/* Top Header */}
-      <div className="absolute top-0 left-0 w-full p-4 flex justify-between items-center z-20 pointer-events-none">
-        <button 
-          onClick={() => navigate('/')}
-          className="pointer-events-auto flex items-center gap-2 text-xs font-mono text-gray-500 hover:text-cyber-blue px-3 py-1.5 border border-white/10 rounded bg-black/50 transition-colors"
-        >
-          ← EXIT PRESENTATION
-        </button>
+      <div className="absolute top-0 left-0 w-full p-4 flex justify-end items-center z-20 pointer-events-none">
         <div className="text-xs font-mono text-gray-500 bg-black/50 px-3 py-1.5 rounded border border-white/10">
           {currentIndex + 1} / {slides.length}
         </div>
