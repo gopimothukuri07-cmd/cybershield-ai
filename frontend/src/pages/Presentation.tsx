@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { slides } from '../data/slides';
 
 const Presentation: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showNotes, setShowNotes] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const navigate = useNavigate();
 
   const currentSlide = slides[currentIndex];
 
